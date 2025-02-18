@@ -27,3 +27,4 @@
 mvn clean install
 mvn verify
 mvn spring-boot:run
+mvn test-compile test

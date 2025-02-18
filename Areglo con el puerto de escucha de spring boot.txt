@@ -1,0 +1,6 @@
+Para solucionar el problema con el puerto, hay que abrir un terminal ejecutado como administrador, y poner los siguientes comandos:
+
+Para verificar que tarea esta escuchando el puerto: netstat -ano | findstr :<PUERTO>
+
+Para finalizar la tarea del puerto: taskkill /F /PID <PID>
+
