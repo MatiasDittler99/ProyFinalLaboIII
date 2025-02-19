@@ -1,4 +1,4 @@
-// Separar en dos clases PrestamoCliente PrestamoCuotas Comentario de Javier
+// Separar en dos clases PrestamoCliente PrestamoCuotas
 package ar.edu.utn.frbb.tup.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
