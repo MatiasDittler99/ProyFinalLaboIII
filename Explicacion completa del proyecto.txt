@@ -1,0 +1,1710 @@
+Explicación de cada código de archivo:
+
+CustomApiError.java
+
+Este código define una clase `CustomApiError` en Java que representa un error en una API.  
+
+- Usa anotaciones de Jackson (`@JsonIgnoreProperties` y `@JsonInclude`) para controlar la serialización JSON (convertir objetos java a json, la deserialización es la inversa, Permite personalizar qué atributos incluir o ignorar en JSON).
+  
+- Contiene dos atributos: `errorCode` (código de error) y `errorMessage` (mensaje de error).  
+
+- Tiene tres constructores para crear objetos con diferentes combinaciones de estos atributos.
+  
+- Incluye getters y setters para acceder y modificar los valores.  
+
+Esta clase sirve para manejar y devolver errores de forma estructurada en una API. 
+
+TupResponseEntityExceptionHandler.java
+
+Este código define un manejador global de excepciones para una API en Spring Boot.  
+
+¿Qué hace?  
+- Usa `@ControllerAdvice` para interceptar errores en toda la aplicación.
+  
+- Captura excepciones específicas como `TipoCuentaAlreadyExistsException`, `ClienteAlreadyExistsException`, etc.  
+
+- Devuelve una respuesta JSON estructurada con un código de error y un mensaje usando `CustomApiError`. 
+ 
+- Sobrescribe `handleExceptionInternal` para manejar cualquier otra excepción no capturada.  
+
+Personaliza las respuestas de error de la API para que sean más claras y manejables.
+
+Explicación rápida de cada importación de Spring Framework:
+
+Importaciones explicadas
+
+Manejo de HTTP y respuestas: 
+
+- import org.springframework.http.HttpHeaders;
+- Representa los encabezados HTTP en una solicitud o respuesta.
+
+- import org.springframework.http.HttpStatus;
+- Define los códigos de estado HTTP como HttpStatus.BAD_REQUEST, HttpStatus.NOT_FOUND, etc.
+
+- import org.springframework.http.HttpStatusCode;
+- Clase base para representar códigos de estado HTTP, útil en métodos más genéricos.
+
+- import org.springframework.http.ResponseEntity;
+- Representa la respuesta HTTP completa, incluyendo cuerpo, encabezados y código de estado.
+
+Manejo de excepciones y controladores:
+
+- import org.springframework.web.bind.annotation.ControllerAdvice;
+- Indica que esta clase manejará excepciones de toda la aplicación.
+
+- import org.springframework.web.bind.annotation.ExceptionHandler;
+- Marca métodos que manejan excepciones específicas en controladores.
+
+Manejo de solicitudes web:
+
+- import org.springframework.web.context.request.WebRequest;
+- Proporciona información sobre la solicitud web actual, como parámetros y atributos.
+
+Extensión de ResponseEntityExceptionHandler:
+
+- import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+-Clase base que proporciona métodos para manejar excepciones de forma personalizada en controladores REST.
+
+Soporte para valores nulos:
+
+- import org.springframework.lang.Nullable;
+- Indica que un parámetro o valor de retorno puede ser null, ayudando a evitar errores.
+
+Estas importaciones permiten manejar errores de API en Spring Boot, generando respuestas HTTP personalizadas cuando ocurren excepciones.
+
+ClienteValidator.java
+
+Este código define una clase `ClienteValidator` que valida un objeto `ClienteDto`. La clase tiene un método `validate` que realiza las siguientes verificaciones:
+
+1. Tipo de persona: Verifica que el tipo de persona sea "F" (físico) o "J" (jurídico).
+2. Fecha de nacimiento: Intenta convertir la fecha de nacimiento a un objeto `LocalDate`. Si falla, lanza un error de formato.
+3. Edad: Verifica que la edad del cliente sea mayor a 18 años.
+
+Si alguna de estas condiciones no se cumple, lanza una `IllegalArgumentException` con un mensaje de error.
+
+Importaciones explicadas:
+
+- `import org.springframework.stereotype.Component;`  
+- Marca la clase como un componente de Spring, lo que permite que Spring la gestione como un bean y la inyecte automáticamente donde sea necesario.
+
+Este código valida datos de un cliente y lanza errores específicos si los datos son incorrectos.
+
+CuentaValidator.java
+
+Este código define una clase `CuentaValidator` que valida un objeto `CuentaDto`. La clase tiene un método `validate` que realiza las siguientes validaciones:
+
+1. Tipo de moneda: Verifica que el tipo de moneda sea "PESOS" o "DOLARES". Si no es ninguno de estos, lanza un error.
+2. Tipo de cuenta: Verifica que el tipo de cuenta sea "CAJA_AHORRO" o "CUENTA_CORRIENTE". Si no es ninguno de estos, lanza un error.
+
+El método `validate` llama a dos métodos privados para validar cada uno de estos parámetros.
+
+Importaciones explicadas:
+
+- `import org.springframework.stereotype.Component;`
+- Marca la clase como un **componente** de Spring, permitiendo que Spring la gestione y la inyecte automáticamente donde sea necesario. 
+
+Este código valida los datos de una cuenta (moneda y tipo de cuenta), lanzando errores si los valores no son válidos.
+
+PrestamoValidator.java
+
+Este código define una clase `PrestamoValidator` que valida un objeto **`PrestamoDto`**. La clase tiene un método `validate` que realiza las siguientes validaciones:
+
+1. Monto del préstamo: Verifica que el monto sea un número positivo y no sea cero. Si no se cumple alguna de estas condiciones, lanza un error con un mensaje adecuado.
+2. Moneda del préstamo: Verifica que el tipo de moneda sea "PESOS". Si no es así, lanza un error indicando que los préstamos solo se otorgan en PESOS.
+
+Este código valida que el monto del préstamo sea positivo y que la moneda sea "PESOS". Si alguna de estas condiciones no se cumple, se lanza una excepción.
+
+ClienteController.java
+
+Este código define un `ClienteController` que gestiona las peticiones HTTP relacionadas con los clientes. Usa Spring Boot para manejar solicitudes REST. Los métodos expuestos son:
+
+1. `@PostMapping`: Crea un nuevo cliente usando los datos proporcionados en el cuerpo de la solicitud (`@RequestBody`).
+2. `@GetMapping`: Devuelve una lista de todos los clientes.
+3. `@GetMapping("/{clienteDni}")`: Busca un cliente por su DNI.
+4. `@DeleteMapping("/{clienteDni}")`: Elimina un cliente por su DNI.
+
+Antes de crear un cliente, se valida con `ClienteValidator`. El servicio `ClienteService` maneja la lógica de negocio real (como crear, eliminar y buscar clientes).
+
+Importaciones explicadas:
+
+- `import org.springframework.beans.factory.annotation.Autowired;`  
+- Permite que Spring inyecte automáticamente las dependencias (`ClienteService` y `ClienteValidator`) en la clase.
+
+- `import org.springframework.web.bind.annotation.;` 
+- Importa las anotaciones necesarias para crear los métodos de un controlador REST:
+  - `@GetMapping`: Para manejar las solicitudes HTTP GET.
+  - `@PostMapping`: Para manejar las solicitudes HTTP POST.
+  - `@DeleteMapping`: Para manejar las solicitudes HTTP DELETE.
+  - `@PathVariable`: Para acceder a las variables en la URL.
+  - `@RequestBody`: Para obtener los datos del cuerpo de la solicitud.
+
+- `import org.springframework.web.bind.annotation.RestController;`  
+- Marca la clase como un controlador REST. Esto indica que los métodos de la clase manejan solicitudes HTTP.
+
+- `import org.springframework.web.bind.annotation.RequestMapping;` 
+- Define la ruta base de las solicitudes para este controlador, en este caso `/cliente`.
+
+Este código es un controlador REST que permite crear, obtener y eliminar clientes, usando un servicio y validador para manejar los datos. 
+
+ClienteDto.java
+
+Este código define la clase `ClienteDto`, que hereda de `PersonaDto` y representa la estructura de datos de un cliente.  
+
+Atributos:  
+- `tipoPersona`: Indica si es una persona física (`F`) o jurídica (`J`).  
+- `banco`: Representa el banco asociado al cliente.  
+
+Métodos principales:  
+- `getTipoPersonaString()`: Devuelve el tipo de persona como una cadena (`F` o `J`).  
+- `getTipoPersona()`: Convierte el string en un objeto `TipoPersona`.  
+- `setTipoPersona(String)` y `setTipoPersona(TipoPersona)`: Permiten establecer el tipo de persona en ambos formatos.  
+- `getBanco()` y `setBanco()`: Métodos para obtener y establecer el banco.  
+  
+Esta clase es un DTO (Data Transfer Object) que solo almacena datos.
+
+
+CuentaController.java
+
+Este código define `CuentaController`, un controlador en Spring Boot que gestiona las operaciones de cuentas bancarias.
+
+Principales funcionalidades:
+1. Crear una cuenta (`@PostMapping`)  
+   - Valida la cuenta con `CuentaValidator`.  
+   - Llama a `cuentaService.darDeAltaCuenta(cuentaDto)`.  
+   - Puede lanzar excepciones si hay errores.  
+
+2. Obtener todas las cuentas (`@GetMapping`)  
+   - Retorna todas las cuentas registradas.  
+
+3. Obtener cuentas de un cliente (`@GetMapping("/{clienteDni}")`)  
+   - Retorna las cuentas asociadas a un cliente específico.  
+
+4. Eliminar una cuenta (`@DeleteMapping("/{numeroCuenta}")`)  
+   - Elimina una cuenta por su número.  
+
+---
+
+Importaciones de Spring explicadas:
+
+-`@RestController`  
+Indica que esta clase es un controlador REST y manejará solicitudes HTTP.  
+
+-`@RequestMapping("/cuenta")`  
+Define que todas las rutas dentro del controlador comienzan con "/cuenta".  
+
+-`@Autowired` 
+Inyecta automáticamente las dependencias (`CuentaService`, `ClienteService`, `CuentaValidator`).  
+
+-`@PostMapping`, `@GetMapping`, `@DeleteMapping`  
+Especifican los endpoints HTTP para crear (`POST`), obtener (`GET`) y eliminar (`DELETE`) cuentas.  
+
+- Excepciones: Controlan errores cuando la cuenta ya existe o el tipo no es válido.  
+- Validaciones: Se usan para verificar que los datos sean correctos antes de procesarlos.
+
+CuentaDto.java
+
+Este código define `CuentaDto`, un Data Transfer Object (DTO) que se usa para transferir datos de una cuenta bancaria entre el cliente y el servidor.
+
+Principales funcionalidades:
+1. Almacena datos de una cuenta:  
+   - `dniTitular`: DNI del dueño de la cuenta.  
+   - `tipoCuenta`: Tipo de cuenta (Caja de Ahorro o Cuenta Corriente).  
+   - `moneda`: Moneda de la cuenta (Pesos o Dólares).  
+
+2. Convierte Strings a enums y viceversa:  
+   - Métodos como `getTipoCuenta()` y `getMoneda()` transforman los valores de String a enum (`TipoCuenta`, `TipoMoneda`).  
+   - Métodos `setTipoCuenta(TipoCuenta tipoCuenta)` y `setMoneda(TipoMoneda moneda)` hacen la conversión inversa.  
+
+Este archivo es un DTO, solo maneja datos y conversiones.
+
+InputEjemplo.md
+
+Explicación rápida y sencilla  
+
+Este fragmento describe tres endpoints de una API y comandos Maven para compilar, probar y ejecutar la aplicación en Spring Boot.
+
+Endpoints de la API
+
+`POST /cliente`  
+-Crea un cliente nuevo con los datos:  
+   - `nombre`, `apellido`, `dni`, `fechaNacimiento`, `tipoPersona`, `banco`.  
+
+`POST /cuenta`  
+-Asocia una cuenta bancaria** a un cliente por su `dniTitular`, con:  
+   - `tipoCuenta` (CAJA_AHORRO o CUENTA_CORRIENTE).  
+   - `moneda` (PESOS o DÓLARES).  
+
+POST /api/prestamo`  
+-Solicita un préstamo para un cliente con:  
+   - `numeroCliente` (DNI del cliente).  
+   - `plazoMeses`, `montoPrestamo`, `moneda`.  
+
+
+Comandos Maven explicados  
+
+`mvn clean install`
+-Limpia archivos generados y compila el proyecto, ejecutando pruebas.  
+
+`mvn verify`
+-Verifica que todo está correcto tras la compilación.  
+
+`mvn spring-boot:run`  
+-Ejecuta la aplicación en Spring Boot.  
+
+`mvn test-compile test`  
+-Compila y ejecuta las pruebas unitarias del proyecto.  
+
+Solo son ejemplos de JSON para probar la API y comandos para manejar el proyecto.
+
+PersonaDto.java
+
+Explicación rápida y sencilla  
+
+Este código define una clase DTO (Data Transfer Object) `PersonaDto`, que se usa para transferir datos de una persona en la aplicación.  
+
+¿Qué hace esta clase?
+
+Atributos: 
+   - `nombre`: Nombre de la persona.  
+   - `apellido`: Apellido de la persona.  
+   - `dni`: Documento de identidad.  
+   - `fechaNacimiento`: Fecha de nacimiento en formato `String`.  
+
+Métodos:
+   - Getters y Setters para acceder y modificar los atributos.  
+   - `getEdad()`: Calcula la edad de la persona restando su fecha de nacimiento (`LocalDate.parse(fechaNacimiento)`) de la fecha actual (`LocalDate.now()`).  
+
+---
+
+Importaciones explicadas  
+
+`import java.time.LocalDate;`  
+   - Permite manejar fechas sin zonas horarias.  
+   - Se usa en `LocalDate.now()` para obtener la fecha actual y en `LocalDate.parse(fechaNacimiento)` para convertir la fecha de nacimiento en un objeto `LocalDate`.  
+
+`import java.time.Period;`
+   - Permite calcular diferencias entre fechas.  
+   - Se usa en `Period.between(...)` para calcular la edad en años.  
+
+Es solo una clase de modelo para manejar datos de personas.
+
+PrestamoConsultaDto.java
+
+Explicación rápida y sencilla  
+
+Este código define una clase DTO (`PrestamoConsultaDto`), que se usa para transferir datos sobre los préstamos de un cliente.  
+
+¿Qué hace esta clase?  
+
+Atributos:  
+   - `numeroCliente`: Guarda el número de cliente (DNI).  
+   - `prestamos`: Lista de préstamos asociados al cliente.  
+
+Métodos:  
+   - Constructor: Inicializa el `numeroCliente` y crea una nueva lista de préstamos  
+   - Getters y Setters para acceder y modificar los atributos.  
+   - `addPrestamos(PrestamoConsultaCliente prestamo)`: Agrega un préstamo a la lista de préstamos.  
+
+Es solo una clase de modelo de datos.
+
+PresatamoController.java
+
+Explicación rápida y sencilla  
+
+Este código define un controlador REST (`PrestamoController`) que maneja las solicitudes relacionadas con los préstamos en una API.  
+
+¿Qué hace esta clase?  
+
+`@RestController`→ Define un controlador REST en Spring Boot.  
+`@RequestMapping("/api/prestamo")`→ Define la URL base para este controlador.  
+Atributo `prestamoService` con `@Autowired`→ Inyecta el servicio que maneja la lógica de préstamos.  
+
+Endpoints: 
+
+`@PostMapping` (`/api/prestamo`) → Recibe solicitudes para otorgar préstamos.  
+   - Valida los datos con `PrestamoValidator`.  
+   - Llama al servicio para procesar el préstamo.  
+   - Lanza una excepción si el préstamo no puede ser otorgado.  
+
+`@GetMapping("/{clienteDni}")` → Obtiene los préstamos de un cliente por su DNI.  
+
+Importaciones de Spring explicadas
+
+-`import org.springframework.web.bind.annotation.*;` 
+   - Define el controlador y sus endpoints (`@RestController`, `@RequestMapping`, `@PostMapping`, `@GetMapping`, `@PathVariable`, `@RequestBody`).  
+
+-`import org.springframework.beans.factory.annotation.Autowired;`**  
+   - Inyecta dependencias automáticamente** (en este caso, `PrestamoService`).  
+
+-`import jakarta.validation.Valid;`  
+   - Activa la validación de datos en `PrestamoDto`.  
+
+- Controlador REST que gestiona préstamos.  
+- Usa Spring Boot para manejar peticiones HTTP (`POST` y `GET`).  
+- Valida los datos antes de procesarlos.  
+- Usa inyección de dependencias para acceder al servicio (`PrestamoService`).
+
+PrestamoDto.java
+
+Explicación rápida y sencilla 
+
+Este código define `PrestamoDto`, un Data Transfer Object (DTO) que se usa para intercambiar datos sobre préstamos en la API.
+
+¿Qué hace esta clase?  
+
+Define atributos para un préstamo:
+   - `numeroCliente`: Identificación del cliente.  
+   - `numeroPrestamo`: Número del préstamo.  
+   - `plazoMeses`: Tiempo de pago.  
+   - `montoPrestamo`: Monto solicitado.  
+   - `moneda`: Tipo de moneda (PESOS o DÓLARES).  
+
+Incluye validaciones con `@NotNull` 
+   - Evita valores nulos en `numeroCliente`, `plazoMeses`, `montoPrestamo` y `moneda`.  
+
+Tiene dos constructores: 
+   - Vacío (para instanciar sin datos).  
+   - Desde un objeto `Prestamo` (para transformar un `Prestamo` en `PrestamoDto`).  
+
+Convierte el tipo de moneda:  
+   - De `String` a `TipoMoneda` (Enum).  
+   - De `TipoMoneda` a `String`.  
+
+Importaciones explicadas 
+
+`import jakarta.validation.constraints.NotNull;`  
+   - Valida que los atributos no sean nulos al recibir una solicitud.  
+ 
+- DTO que representa un préstamo.  
+- Se usa para intercambiar datos en la API.  
+- Incluye validaciones para evitar errores en las solicitudes.  
+- Convierte entre `String` y `TipoMoneda`.
+
+PrestamoOutputDto.java
+
+Este código define `PrestamoOutputDto`, un DTO (Data Transfer Object) que se usa para enviar la respuesta de un préstamo en la API.
+
+¿Qué hace esta clase? 
+
+Define atributos para la respuesta de un préstamo: 
+   - `numeroCliente`: Identificación del cliente.  
+   - `numeroPrestamo`: Número del préstamo.  
+   - `estado`: Estado del préstamo (aprobado, rechazado, etc.).  
+   - `mensaje`: Información adicional.  
+   - `planPagos`: Lista de cuotas del préstamo.  
+
+Tiene dos constructores:
+   - Vacío (para instanciar sin datos).  
+   - Desde un objeto `PrestamoOutput` (convierte un `PrestamoOutput` en `PrestamoOutputDto`).  
+
+Métodos `get` y `set` para manejar los atributos. 
+
+- DTO que representa la respuesta de un préstamo.  
+- Se usa para enviar información sobre un préstamo solicitado.  
+- Contiene estado, mensaje y plan de pagos.  
+- Convierte un `PrestamoOutput` en `PrestamoOutputDto`.
+
+CantidadNegativaException.java 
+
+Esta clase `CantidadNegativaException` es una excepción personalizada que extiende `Throwable`, lo que significa que se puede usar para manejar errores cuando se introduce una cantidad negativa en el sistema.  
+
+¿Qué hace esta clase?
+
+- Crea una excepción específica para manejar errores cuando aparece una cantidad negativa en el sistema.  
+- Extiende `Throwable`, lo que permite que se lance y capture como una excepción personalizada.  
+
+Es una excepción personalizada estándar de Java.  
+
+- Clase de excepción personalizada para manejar cantidades negativas.  
+- Extiende `Throwable`, por lo que puede lanzarse y capturarse en el código.
+
+ClienteAlreadyExistsException.java
+
+La clase `ClienteAlreadyExistsException` es una excepción personalizada que se utiliza cuando se intenta crear un cliente que ya existe en el sistema.
+
+¿Qué hace esta clase?
+
+- Define una excepción personalizada llamada `ClienteAlreadyExistsException` que se lanza cuando un cliente ya existe en el sistema y se intenta agregar de nuevo.
+- El constructor de la clase recibe un mensaje que describe el error, y ese mensaje se pasa al constructor de la clase base `Throwable`.
+
+Importaciones explicadas
+
+Esta es una excepción básica de Java personalizada para manejar un caso específico del negocio.
+
+Excepción personalizada para manejar el error cuando un cliente ya existe en el sistema.
+
+Extiende `Throwable`, lo que le permite ser lanzada o capturada en el flujo del programa.
+
+CuentasAlreadyExistsException.java
+
+`CuentaAlreadyExistsException` es una excepción personalizada que se utiliza para indicar que una cuenta ya existe en el sistema.
+
+¿Qué hace esta clase?
+
+- Define una excepción personalizada llamada `CuentaAlreadyExistsException`, que se lanza cuando el sistema intenta crear una cuenta que ya existe.
+- El constructor de la clase recibe un mensaje, que describe el error, y lo pasa al constructor de la clase base `Throwable` para que pueda ser manejado correctamente.
+
+Es una clase personalizada de Java para manejar un caso de error específico en la lógica del negocio.
+
+Excepción personalizada para manejar el error cuando una cuenta ya existe en el sistema.
+
+Extiende `Throwable`, lo que permite que sea lanzada y capturada en el flujo de la aplicación.
+
+NoAlcanzaException.java
+
+La clase `NoAlcanzaException` es una excepción personalizada que se lanza cuando alguna operación no puede completarse debido a que no hay suficiente de algo, como fondos o recursos, por ejemplo.
+
+Qué hace esta clase?
+
+- Define una excepción personalizada llamada `NoAlcanzaException`, que se utiliza para indicar que una acción no puede llevarse a cabo porque no se cumple una condición (por ejemplo, fondos insuficientes).
+- La clase extiende `Throwable`, lo que permite que sea lanzada y capturada en el flujo de ejecución de la aplicación.
+
+Excepción personalizada que indica que no se puede completar una acción por falta de algo.
+
+Extiende `Throwable`, lo que la hace apta para ser lanzada y manejada como un error en el sistema.
+
+Es una clase simple de Java que maneja errores.
+
+PrestamoNoOtorgadoException.java
+
+La clase `PrestamoNoOtorgadoException` es una excepción personalizada que se utiliza cuando no se puede otorgar un préstamo por alguna razón.
+
+¿Qué hace esta clase?
+
+- Define una excepción personalizada llamada `PrestamoNoOtorgadoException`, que se utiliza para indicar que un préstamo no fue aprobado o no se puede otorgar.
+- Extiende `Throwable`: Esto significa que la clase es un tipo de error que puede ser lanzado durante la ejecución del programa.
+
+El constructor recibe un mensaje como parámetro, que se pasa al constructor de la clase base (`Throwable`), y ese mensaje describe la razón por la que no se otorgó el préstamo.
+
+La clase solo usa Java**: Extiende `Throwable` de la biblioteca estándar de Java para crear una excepción personalizada.
+
+Excepción personalizada para indicar que un préstamo no fue otorgado.
+
+Extiende `Throwable`, lo que permite que se maneje como un error en el sistema.
+
+TipoCuentaAlreadyExistsException.java
+
+La clase `TipoCuentaAlreadyExistsException` es una excepción personalizada que se utiliza cuando intentas crear un tipo de cuenta que ya existe en el sistema.
+
+¿Qué hace esta clase?
+
+- Define una excepción personalizada llamada `TipoCuentaAlreadyExistsException`, que se lanza cuando se intenta crear un tipo de cuenta que ya está registrado o existe.
+- Extiende `Exception`: Al extender `Exception`, esta clase puede ser utilizada para lanzar y manejar errores específicos relacionados con el tipo de cuenta.
+
+El constructor recibe un mensaje como parámetro, que describe el motivo del error (por ejemplo, "Este tipo de cuenta ya existe").
+
+La clase solo usa Java: Se extiende de la clase `Exception` de la biblioteca estándar de Java para crear una excepción personalizada.
+
+Excepción personalizada para indicar que el tipo de cuenta ya existe.
+
+Extiende `Exception`, lo que permite que se maneje como un error en el sistema.
+
+TipoCuentaNoSoportadaException.java
+
+La clase `TipoCuentaNoSoportadaException` es una excepción personalizada que se lanza cuando se intenta utilizar un tipo de cuenta que no está soportado en el sistema.
+
+¿Qué hace esta clase?
+
+- Define una excepción personalizada llamada `TipoCuentaNoSoportadaException`, que se utiliza cuando un tipo de cuenta no es compatible o no está permitido en una operación.
+- Extiende `Throwable`: Al extender `Throwable`, esta clase puede ser usada para generar un error en el flujo de ejecución del programa.
+
+El constructor recibe un mensaje que describe el motivo del error (por ejemplo, "Este tipo de cuenta no está soportado").
+
+La clase solo usa Java: Se extiende de `Throwable` (una clase base para todas las excepciones en Java).
+
+Excepción personalizada que indica que el tipo de cuenta no es soportado.
+
+Extiende `Throwable`, lo que permite usarla como un error en el sistema.
+
+Banco.java
+
+Este fragmento de código define la clase `Banco`, que tiene una lista de objetos `Cliente`. Permite almacenar y acceder a los clientes del banco.
+
+¿Qué hace esta clase?
+
+- Define una lista de clientes: La clase `Banco` tiene una lista (`clientes`) que almacena objetos de tipo `Cliente`.
+- Métodos para obtener y establecer la lista: La clase tiene dos métodos:
+  - `getClientes()`: Devuelve la lista de clientes.
+  - `setClientes()`: Permite establecer o cambiar la lista de clientes.
+
+La clase `Banco` contiene una lista de clientes y métodos para manipular esa lista.
+
+`ArrayList` y `List` son clases estándar de Java para manejar listas dinámicas.
+
+Cliente.java
+
+Este fragmento de código define la clase `Cliente`, que extiende de la clase `Persona` y contiene información sobre un cliente, como su tipo, banco, fecha de alta y las cuentas asociadas. Permite añadir cuentas y verificar si un cliente tiene una cuenta específica.
+
+¿Qué hace esta clase?
+
+1. Hereda de `Persona`: La clase `Cliente` extiende de `Persona`, lo que significa que hereda atributos como DNI, nombre, apellido y fecha de nacimiento.
+2. Atributos adicionales:
+   - `tipoPersona`: Define si es una persona física o jurídica.
+   - `banco`: Es el banco donde está registrado el cliente.
+   - `fechaAlta`: La fecha en que el cliente fue dado de alta.
+   - `cuentas`: Una colección de cuentas asociadas al cliente (implementada como un `Set` para evitar duplicados).
+3. Métodos:
+   - `addCuenta(Cuenta cuenta)`: Añade una cuenta al cliente.
+   - `tieneCuenta(TipoCuenta tipoCuenta, TipoMoneda moneda)`: Verifica si el cliente tiene una cuenta con un tipo de cuenta y moneda específicos.
+   - `toString()`: Devuelve una representación en cadena del cliente con sus atributos.
+
+La clase `Cliente` representa a un cliente de un banco y contiene atributos como el tipo de persona, banco, fecha de alta y las cuentas asociadas.
+
+ClienteDto` se usa para inicializar un cliente con datos de un objeto DTO.
+
+`LocalDate` se usa para manejar fechas, como la fecha de alta.
+
+`HashSet` asegura que las cuentas no se repitan en el cliente.
+
+Cuota.java
+
+Este fragmento de código define la clase `Cuenta`, que representa una cuenta bancaria con atributos como el número de cuenta, fecha de creación, balance, tipo de cuenta, titular y moneda. Permite realizar operaciones como debitar dinero de la cuenta, validando que el saldo sea suficiente y que la cantidad no sea negativa.
+
+¿Qué hace esta clase?
+
+1. Atributos:
+   - `numeroCuenta`: El identificador único de la cuenta.
+   - `fechaCreacion`: La fecha en que la cuenta fue creada.
+   - `balance`: El saldo disponible en la cuenta.
+   - `tipoCuenta`: El tipo de cuenta (por ejemplo, corriente, ahorro).
+   - `titular`: El DNI del titular de la cuenta.
+   - `moneda`: El tipo de moneda de la cuenta (por ejemplo, pesos, dólares).
+
+2. Métodos:
+   - Constructores:
+     - `Cuenta()`: Crea una cuenta con un número de cuenta aleatorio, saldo 0 y fecha de creación actual.
+     - `Cuenta(CuentaDto cuentaDto)`: Inicializa una cuenta usando datos de un DTO.
+   - Métodos de acceso: Getters y setters para cada atributo de la cuenta.
+   - `debitarDeCuenta(int cantidadADebitar)`: Debita una cantidad del saldo de la cuenta, validando que la cantidad no sea negativa y que haya suficiente saldo.
+   - `forzaDebitoDeCuenta(int i)`: Fuerza un débito sobre la cuenta, independientemente del saldo.
+   - `toString()`: Devuelve una representación en cadena de la cuenta con todos sus atributos.
+
+Importaciones explicadas
+
+Importación de `java.time.LocalDateTime`:
+- `LocalDateTime`: Se usa para representar la fecha y hora en que se crea la cuenta. Es útil para manejar la fecha de creación de la cuenta.
+
+Importación de `java.util.Random`:
+- `Random`: Se usa para generar un número de cuenta aleatorio en el constructor de la clase `Cuenta`.
+
+La clase `Cuenta` representa una cuenta bancaria y permite realizar operaciones sobre ella, como debitar dinero, asegurando que el saldo sea suficiente y que las cantidades no sean negativas.
+
+`CuentaDto` es un DTO utilizado para inicializar las cuentas con datos específicos.
+
+`CantidadNegativaException` y `NoAlcanzaException` manejan los errores que pueden ocurrir durante la operación de débito.
+
+`LocalDateTime` maneja la fecha y hora de creación de la cuenta, y `Random` se utiliza para generar un número de cuenta único.
+
+Cuota.java
+
+Este fragmento de código define la clase `Cuota`, que representa una cuota de pago, con un número de cuota y un monto. Tiene métodos para acceder y modificar estos valores (getters y setters).
+
+¿Qué hace esta clase?
+
+1. Atributos:
+   - `numeroCuota`: El número de la cuota (por ejemplo, 1er mes, 2do mes, etc.).
+   - `monto`: El monto de dinero asociado a esa cuota.
+
+2. Métodos:
+   - Constructor: 
+     - `Cuota(int cuotaNro, double monto)`: Inicializa un objeto `Cuota` con el número de la cuota y el monto que recibe como parámetros.
+   - Métodos de acceso (getters y setters):
+     - `getNumeroCuota()`: Devuelve el número de cuota.
+     - `setNumeroCuota(int numeroCuota)`: Establece el número de la cuota.
+     - `getMonto()`: Devuelve el monto de la cuota.
+     - `setMonto(double monto)`: Establece el monto de la cuota.
+
+La clase `Cuota` tiene dos atributos: el número de cuota y el monto. Permite obtener y modificar estos valores con sus métodos. 
+
+Persona.java
+
+Este fragmento de código define la clase `Persona`, que tiene información básica sobre una persona como nombre, apellido, DNI, y fecha de nacimiento. También incluye un método para calcular la edad de la persona.
+
+¿Qué hace esta clase?
+
+1. Atributos:
+   - `nombre`: El nombre de la persona.
+   - `apellido`: El apellido de la persona.
+   - `dni`: El DNI de la persona (un identificador único).
+   - `fechaNacimiento`: La fecha de nacimiento de la persona.
+
+2. Métodos:
+   - Constructor: 
+     - `Persona(long dni, String apellido, String nombre, String fechaNacimiento)`: Inicializa la persona con los valores recibidos, convirtiendo la fecha de nacimiento de tipo `String` a `LocalDate`.
+   - Métodos de acceso (getters y setters):
+     - Métodos como `getNombre()`, `setNombre()`, `getApellido()`, `setApellido()`, etc., que permiten obtener o modificar los atributos de la persona.
+   - Método `getEdad()`: 
+     - Calcula la edad de la persona utilizando la fecha actual y la fecha de nacimiento. Usa la clase `Period` para calcular la diferencia entre ambas fechas.
+
+La clase `Persona` tiene atributos básicos como nombre, apellido, DNI y fecha de nacimiento, y métodos para acceder a estos atributos.
+
+El método `getEdad()` calcula la edad de la persona usando `LocalDate` y `Period`.
+
+Prestamo.java
+
+Este fragmento de código define la clase `Prestamo`, que se utiliza para representar un préstamo. Contiene atributos como el número de cliente, el número de préstamo, el plazo en meses, el monto del préstamo, la moneda y los intereses. También tiene métodos para obtener y modificar estos atributos, así como para configurar la moneda a partir de una cadena de texto.
+
+¿Qué hace esta clase?
+
+1. Atributos**:
+   - `numeroCliente`: El número de cliente al que pertenece el préstamo.
+   - `numeroPrestamo`: El número único del préstamo.
+   - `plazoMeses`: El plazo del préstamo en meses.
+   - `montoPrestamo`: El monto total del préstamo.
+   - `moneda`: La moneda del préstamo (por ejemplo, pesos o dólares).
+   - `interesTotal`: El interés total que se cobra por el préstamo (opcional).
+
+2. Métodos:
+   - Constructor `Prestamo(PrestamoDto prestamoDto)`: Inicializa un préstamo a partir de los datos recibidos en un DTO (Data Transfer Object).
+   - Getters y setters: Métodos para acceder y modificar los atributos del préstamo.
+   - Método `setMoneda(String moneda)`: Configura la moneda en función de un valor en texto (por ejemplo, "PESOS" o "DOLARES").
+   - Método `toString()`: Devuelve una representación en formato de texto del préstamo.
+
+Importaciones explicadas
+
+`import com.fasterxml.jackson.annotation.JsonInclude;`:
+   - Importa la anotación `JsonInclude` de la biblioteca Jackson. Esta anotación indica que los atributos con valor `null` no deben ser incluidos en el JSON cuando se serializa un objeto. En este caso, `interesTotal` solo se incluirá si no es `null`.
+
+La clase `Prestamo` representa un préstamo con atributos como el número de cliente, el monto, el plazo y la moneda.
+
+Utiliza `PrestamoDto` para transferir los datos del préstamo de un lugar a otro.
+
+Usa `JsonInclude` para evitar incluir valores `null` al convertir objetos a JSON.
+
+PrestamoConsultaCliente.java
+
+Este fragmento de código define la clase PrestamoConsultaCliente, que sirve para representar la información relevante de un préstamo cuando un cliente consulta su estado. Los atributos que maneja incluyen el monto del préstamo, los intereses, el plazo en meses, los pagos realizados y el saldo restante. Además, tiene métodos para acceder y modificar estos valores.
+
+🚀 ¿Qué hace esta clase?
+
+Atributos:
+
+monto: El monto total del préstamo.
+intereses: El total de los intereses asociados al préstamo.
+plazoMeses: El plazo del préstamo en meses.
+pagosRealizados: La cantidad de pagos que ya se han realizado.
+saldoRestante: El saldo pendiente por pagar del préstamo.
+
+Método Constructor:
+
+PrestamoConsultaCliente(Prestamo prestamo): Inicializa un objeto de esta clase con los datos de un objeto Prestamo. Copia el monto, el plazo y los intereses del préstamo a los atributos correspondientes.
+Métodos Getter y Setter:
+
+Permiten obtener y modificar los valores de los atributos de la clase, como el monto, los intereses, los pagos realizados, etc.
+
+La clase PrestamoConsultaCliente es un modelo que permite almacenar la información relevante sobre un préstamo que un cliente desea consultar.
+
+PrestamoOutput.java
+
+Este fragmento de código define la clase PrestamoOutput, que representa la información de salida de un préstamo. Se usa para enviar datos procesados sobre el estado del préstamo y su plan de pagos.
+
+¿Qué hace esta clase?
+
+Atributos:
+
+numeroCliente: Número del cliente asociado al préstamo.
+numeroPrestamo: Número identificador del préstamo.
+estado: Estado actual del préstamo (ej. aprobado, rechazado).
+mensaje: Mensaje adicional sobre el préstamo (ej. “Aprobado con observaciones”).
+planPagos: Lista de cuotas asociadas al préstamo.
+interesTotal: Total de intereses a pagar (puede ser nulo).
+
+Método Constructor:
+
+PrestamoOutput(PrestamoOutputDto prestamoOutputDto): Recibe un DTO (Data Transfer Object) con datos del préstamo y los asigna a los atributos.
+
+Métodos Getter y Setter:
+
+Permiten obtener y modificar los atributos de la clase.
+Método addCuota(Cuota cuota)
+
+Agrega una nueva cuota al plan de pagos.
+
+Importaciones
+
+com.fasterxml.jackson.annotation.JsonInclude → Indica que los atributos con valor null no deben ser incluidos en la conversión a JSON.
+
+PrestamoOutput almacena y organiza la información de salida de un préstamo, incluyendo su estado, mensaje y plan de pagos.
+
+TipoCuenta.java
+
+Este código define un enum (TipoCuenta) que representa los tipos de cuenta bancaria:
+
+CUENTA_CORRIENTE
+CAJA_AHORRO
+Cada tipo de cuenta tiene una descripción asociada como cadena de texto.
+
+¿Qué hace esta clase?
+
+Enum TipoCuenta
+
+Define dos tipos de cuenta bancaria con una descripción.
+
+Atributo descripcion
+
+Almacena una representación en texto del tipo de cuenta.
+Constructor TipoCuenta(String descripcion)
+
+Inicializa el atributo descripcion al crear un tipo de cuenta.
+Código comentado (getDescripcion y fromString)
+
+getDescripcion(): Devuelve la descripción del tipo de cuenta.
+fromString(String texto): Convierte una cadena de texto en un TipoCuenta, lanzando una excepción si el valor no es válido.
+
+TipoCuenta es un enum que define los tipos de cuenta bancaria con una descripción.
+
+TipoMoneda.java
+
+Este código define un enum (TipoMoneda) que representa los tipos de moneda:
+
+PESOS
+DÓLARES
+Cada tipo de moneda tiene una descripción asociada como cadena de texto.
+
+¿Qué hace esta clase?
+
+Enum TipoMoneda
+
+Define dos tipos de moneda: PESOS y DÓLARES.
+
+Atributo descripcion
+
+Almacena una representación en texto del tipo de moneda.
+Constructor TipoMoneda(String descripcion)
+
+Inicializa la descripción cuando se crea un TipoMoneda.
+
+Código comentado (getDescripcion y fromString)
+
+getDescripcion(): Devuelve la descripción del tipo de moneda.
+fromString(String texto): Convierte una cadena de texto en un TipoMoneda, lanzando una excepción si no coincide con ningún valor definido.
+
+TipoMoneda es un enum que define los tipos de moneda con una descripción.
+
+TipoPersona.java
+
+Este código define un enum (TipoPersona) que representa dos tipos de personas:
+
+PERSONA_FISICA ("F")
+PERSONA_JURIDICA ("J")
+Cada tipo tiene una descripción asociada en forma de texto.
+
+¿Qué hace esta clase?
+
+Enum TipoPersona
+
+Define dos tipos: Física (F) y Jurídica (J).
+
+Atributo descripcion
+
+Almacena la representación en texto del tipo de persona.
+Constructor TipoPersona(String descripcion)
+
+Inicializa la descripción al crear un TipoPersona.
+
+Código comentado (getDescripcion y fromString)
+
+getDescripcion(): Devuelve la descripción del tipo de persona.
+fromString(String text): Convierte un texto en TipoPersona, lanzando una excepción si no coincide con ningún valor definido.
+
+TipoPersona es un enum que define tipos de personas con una descripción.
+
+BaseEntity.java
+
+Este código define una clase base (BaseEntity) para entidades en la base de datos.
+
+¿Qué hace esta clase?
+
+Atributo Id (final Long)
+
+Es un identificador único para la entidad.
+final: No puede modificarse después de ser inicializado.
+
+Constructor BaseEntity(long id)
+
+Recibe un id y lo asigna al atributo Id.
+
+Método getId()
+
+Devuelve el identificador de la entidad.
+
+BaseEntity es una clase base con un identificador único para entidades en la base de datos.
+
+ClienteEntity.java
+
+Esta clase ClienteEntity representa la versión persistente de un cliente en la base de datos.
+
+¿Qué hace esta clase?
+
+Extiende BaseEntity
+
+Hereda el atributo id de la clase BaseEntity.
+Usa el DNI del cliente como identificador único.
+
+Atributos principales
+
+tipoPersona: Tipo de persona (F o J).
+nombre y apellido.
+fechaAlta: Fecha en que se registró el cliente.
+fechaNacimiento: Fecha de nacimiento del cliente.
+cuentas: Lista de los números de cuenta asociados al cliente.
+
+Constructor ClienteEntity(Cliente cliente)
+
+Convierte un objeto Cliente en ClienteEntity.
+Extrae la información del cliente y guarda solo los números de cuenta en la lista cuentas.
+
+Método toCliente()
+
+Convierte una ClienteEntity de la base de datos en un objeto Cliente.
+Se usa para mapear los datos almacenados a un objeto de la aplicación.
+
+ClienteEntity convierte objetos Cliente en entidades para la base de datos y viceversa.
+
+CuentaEntity.java
+
+Esta clase CuentaEntity representa la versión persistente de una cuenta bancaria en la base de datos.
+
+¿Qué hace esta clase?
+
+Extiende BaseEntity
+
+Hereda el atributo id (número de cuenta).
+
+Atributos principales
+
+fechaCreacion: Cuándo se creó la cuenta.
+balance: Saldo disponible.
+tipoCuenta: Tipo de cuenta (Ej: CAJA_AHORRO, CUENTA_CORRIENTE).
+titular: ID del cliente dueño de la cuenta.
+moneda: Tipo de moneda (PESOS, DOLARES).
+
+Constructor CuentaEntity(Cuenta cuenta)
+
+Convierte un objeto Cuenta en CuentaEntity.
+Extrae la información y la almacena en la versión persistente.
+
+Método toCuenta()
+
+Convierte CuentaEntity en un objeto Cuenta para la lógica de negocio.
+
+Getters y Setters
+
+Métodos para acceder y modificar los atributos.
+
+CuentaEntity convierte objetos Cuenta en entidades para la base de datos y viceversa.
+
+PrestamoEntity.java
+
+La clase PrestamoEntity es una versión persistente de un préstamo, destinada a ser guardada en la base de datos.
+
+¿Qué hace esta clase?
+
+Extiende BaseEntity
+
+Hereda el atributo id, que en este caso está formado por una combinación de numeroCliente y numeroPrestamo.
+
+Atributos principales
+
+numeroCliente: ID del cliente que tiene el préstamo.
+numeroPrestamo: Identificador único del préstamo.
+plazoMeses: Duración del préstamo en meses.
+montoPrestamo: Monto total del préstamo.
+moneda: Tipo de moneda del préstamo (por ejemplo, pesos o dólares).
+interesTotal: Total de interés aplicado al préstamo.
+
+Constructor PrestamoEntity(Prestamo prestamo)
+
+Convierte un objeto Prestamo en un objeto PrestamoEntity para almacenar en la base de datos.
+La clave primaria de la entidad (id) se genera combinando el numeroCliente y el numeroPrestamo.
+
+Método toPrestamo()
+
+Convierte un objeto PrestamoEntity de vuelta a un objeto Prestamo de negocio.
+Getter
+
+getNumeroCliente() permite acceder al número de cliente asociado con el préstamo.
+
+PrestamoEntity es una clase diseñada para ser usada con una base de datos. Convierte un préstamo de negocio (Prestamo) a una entidad persistente (PrestamoEntity) y viceversa.
+
+PrestamoOutputEntity.java
+
+La clase PrestamoOutputEntity es una representación persistente de un resultado de préstamo que se almacena en la base de datos, y proporciona la conversión de un objeto de negocio (PrestamoOutput) a un objeto de entidad.
+
+¿Qué hace esta clase?
+
+Extiende BaseEntity
+
+Hereda el id desde BaseEntity, que se crea combinando numeroCliente y numeroPrestamo.
+
+Atributos principales
+
+numeroCliente: Identificador del cliente.
+numeroPrestamo: Identificador del préstamo.
+estado: Estado del préstamo (por ejemplo, "aprobado", "pendiente").
+mensaje: Un mensaje relacionado con el préstamo (por ejemplo, "Préstamo aprobado").
+planPagos: Lista de cuotas del préstamo (representada como una lista de objetos Cuota).
+
+Constructor PrestamoOutputEntity(PrestamoOutput prestamoOutput)
+
+Convierte un objeto PrestamoOutput en un objeto PrestamoOutputEntity para almacenamiento en la base de datos.
+La clave primaria de la entidad (id) se genera combinando numeroCliente y numeroPrestamo.
+
+Método toPrestamoOutput()
+
+Convierte un objeto PrestamoOutputEntity de vuelta a un objeto PrestamoOutput de negocio.
+
+Método privado addCuotasPrestamo(PrestamoOutput prestamoOutput)
+
+Añade las cuotas del préstamo (plan de pagos) al objeto PrestamoOutputEntity si existen en el objeto de entrada PrestamoOutput.
+
+Getter
+
+getNumeroCliente() devuelve el número del cliente asociado con el préstamo.
+
+PrestamoOutputEntity convierte un objeto de negocio (PrestamoOutput) en una entidad para la base de datos y viceversa.
+planPagos (lista de cuotas) se guarda en esta entidad.
+
+AbstractBaseDao.java
+
+La clase AbstractBaseDao proporciona una base para otros DAOs (Data Access Object) en el sistema. Esencialmente, actúa como un almacenamiento en memoria simulado (una base de datos en memoria) utilizando un Map.
+
+🚀 ¿Qué hace esta clase?
+
+Propiedad poorMansDatabase
+
+Es un Map<String, Map<Long, Object>>, que simula una base de datos en memoria. La clave principal es una cadena (el nombre de la entidad) y el valor es otro Map que tiene como claves identificadores (Long) y como valores objetos (Object).
+
+Método abstracto getEntityName()
+
+Cada clase que hereda de AbstractBaseDao debe implementar este método para devolver el nombre de la entidad que gestionará (por ejemplo, "Cliente", "Cuenta", etc.).
+
+Método getInMemoryDatabase()
+
+Este método obtiene el Map<Long, Object> correspondiente al nombre de la entidad gestionada. Si no existe, lo crea y lo guarda en poorMansDatabase. Esto simula una base de datos en memoria para cada tipo de entidad.
+
+AbstractBaseDao crea un esquema para trabajar con datos en memoria usando un Map para simular una base de datos en memoria.
+getInMemoryDatabase() asegura que haya una "base de datos" para cada entidad que herede de esta clase.
+
+ClienteDao.java
+
+La clase ClienteDao es un DAO (Data Access Object) que maneja la persistencia de clientes en una "base de datos" en memoria.
+
+¿Qué hace esta clase?
+
+Extiende AbstractBaseDao
+
+Hereda la base de datos en memoria simulada.
+@Service → Marca la clase como un servicio de Spring para que pueda ser inyectada en otros componentes.
+
+@Autowired CuentaDao cuentaDao
+
+Inyecta una instancia de CuentaDao automáticamente para manejar cuentas asociadas a clientes.
+
+Métodos principales:
+
+find(long dni, boolean loadComplete) → Busca un cliente por DNI y opcionalmente carga sus cuentas.
+getClientes(boolean loadComplete) → Devuelve todos los clientes y, si loadComplete es true, también sus cuentas.
+delete(long dni) → Elimina un cliente de la base de datos simulada.
+save(Cliente cliente) → Guarda un cliente en la base de datos en memoria.
+getEntityName() → Retorna el nombre de la entidad ("CLIENTE").
+
+Importaciones de Spring explicadas
+@Service (de org.springframework.stereotype.Service)
+
+Declara esta clase como un servicio de negocio en Spring, permitiendo que sea detectada automáticamente en la configuración.
+
+@Autowired (de org.springframework.beans.factory.annotation.Autowired)
+
+Permite la inyección automática de dependencias (en este caso, CuentaDao).
+
+ClienteDao es un servicio de persistencia en memoria para clientes.
+Usa Spring (@Service, @Autowired) para manejar dependencias automáticamente.
+Carga clientes con o sin sus cuentas, guarda y elimina clientes en la "base de datos" en memoria.
+
+CuentaDao.java
+
+La clase CuentaDao es un DAO (Data Access Object) que maneja la persistencia de cuentas bancarias en una "base de datos" en memoria.
+
+¿Qué hace esta clase?
+
+Extiende AbstractBaseDao
+
+Hereda la base de datos en memoria simulada.
+@Component → Marca la clase como un componente de Spring, permitiendo su inyección automática en otros lugares.
+
+Métodos principales:
+
+save(Cuenta cuenta) → Guarda una cuenta en la base de datos en memoria.
+find(long id) → Busca una cuenta por su número de cuenta.
+getCuentasByCliente(long dni) → Devuelve todas las cuentas de un cliente usando su DNI.
+getCuentas() → Devuelve todas las cuentas almacenadas.
+delete(long numeroCuenta) → Elimina una cuenta si existe, de lo contrario, lanza una excepción.
+getEntityName() → Retorna el nombre de la entidad ("CUENTA").
+
+Importaciones de Spring explicadas
+@Component (de org.springframework.stereotype.Component)
+
+Permite que Spring detecte esta clase automáticamente y la administre como un "bean".
+Hace que la clase esté disponible para inyección en otros componentes.
+
+CuentaDao maneja la persistencia de cuentas bancarias en memoria.
+Usa @Component de Spring para que sea inyectable automáticamente.
+Guarda, busca, lista y elimina cuentas.
+
+PrestamoDao.java
+
+La clase PrestamoDao es un DAO que maneja la persistencia de préstamos en una "base de datos" en memoria.
+
+¿Qué hace esta clase?
+
+Extiende AbstractBaseDao
+
+Hereda la base de datos en memoria simulada.
+@Component → Permite que Spring detecte esta clase automáticamente y la administre como un "bean" inyectable.
+
+Métodos principales:
+
+almacenarDatosPrestamo(Prestamo prestamo) → Guarda un préstamo en la base de datos en memoria.
+getPrestamosByCliente(long dni) → Retorna la lista de préstamos asociados a un cliente (DNI).
+getPrestamosById(long id) → Busca y devuelve préstamos por su ID.
+getEntityName() → Retorna el nombre de la entidad ("PRESTAMO").
+
+Importaciones de Spring explicadas
+@Component (de org.springframework.stereotype.Component)
+
+Indica que esta clase es un componente de Spring y será gestionada automáticamente.
+Permite que otros componentes la inyecten donde sea necesario.
+
+PrestamoDao maneja la persistencia de préstamos en memoria.
+Usa @Component de Spring para ser inyectable automáticamente.
+Guarda, busca y lista préstamos por cliente o ID.
+
+PrestamoOutputDao.java
+
+La clase PrestamoOutputDao es un DAO que maneja la persistencia de "outputs" de préstamos en una base de datos en memoria.
+
+¿Qué hace esta clase?
+
+Extiende AbstractBaseDao
+
+Hereda la base de datos en memoria simulada.
+@Component → Hace que Spring administre esta clase automáticamente como un bean inyectable.
+
+Métodos principales:
+
+almacenarDatosPrestamoOutput(PrestamoOutput prestamoOutput) → Guarda un "output" de préstamo en la base de datos en memoria.
+getPrestamosOutputByCliente(long dni) → Devuelve una lista de préstamos output asociados a un cliente (DNI).
+getPrestamosOutputById(long id) → Busca y devuelve préstamos output por su ID.
+getEntityName() → Retorna el nombre de la entidad ("PRESTAMOOUTPUT").
+
+Importaciones de Spring explicadas
+✅ @Component (de org.springframework.stereotype.Component)
+
+Marca esta clase como un componente de Spring.
+Permite que Spring la detecte y la gestione automáticamente (para inyección de dependencias).
+
+PrestamoOutputDao maneja la persistencia de outputs de préstamos en memoria.
+Usa @Component para que Spring la administre automáticamente.
+Permite guardar, buscar y listar outputs de préstamos por cliente o ID.
+
+ClienteService.java
+
+La clase ClienteService es un servicio que maneja la lógica de negocio relacionada con los clientes y sus cuentas.
+
+¿Qué hace esta clase?
+
+Está anotada con @Service → Indica que es un componente de servicio en Spring.
+Usa ClienteDao y CuentaDao para interactuar con la base de datos.
+
+Métodos principales:
+darDeAltaCliente(ClienteDto clienteDto) → Crea un nuevo cliente si no existe.
+agregarCuenta(Cuenta cuenta) → Agrega una cuenta a un cliente si no la tiene ya.
+buscarClientePorDni(long dni) → Busca un cliente por DNI y lanza un error si no existe.
+getCuentasCliente(long dni) → Devuelve todas las cuentas de un cliente.
+getClientes() → Retorna la lista de todos los clientes.
+eliminarCliente(long dni) → Elimina un cliente de la base de datos.
+
+Importaciones de Spring explicadas
+@Service (de org.springframework.stereotype.Service)
+
+Marca esta clase como un servicio dentro del framework de Spring.
+Permite que Spring la detecte y gestione automáticamente como un bean.
+
+ClienteService maneja la lógica de negocio de clientes y cuentas.
+Usa @Service para que Spring lo administre automáticamente.
+Permite crear, buscar, listar, eliminar clientes y gestionar sus cuentas.
+
+CuentaService.java
+
+La clase CuentaService maneja la lógica de negocio relacionada con las cuentas bancarias, como la creación, validación, actualización y eliminación de cuentas.
+
+¿Qué hace esta clase?
+Anotada con @Component → Indica que es un componente gestionado por Spring.
+Usa CuentaDao y ClienteService para interactuar con la base de datos y gestionar clientes.
+
+Métodos principales:
+darDeAltaCuenta(CuentaDto cuentaDto) → Crea una nueva cuenta si no existe y si el tipo de cuenta es soportado.
+tipoCuentaEstaSoportada(Cuenta cuenta) → Verifica si el tipo de cuenta y la moneda son soportados.
+find(long id) → Busca una cuenta por su número.
+actualizarCuentaCliente(Prestamo prestamo) → Actualiza el balance de la cuenta del cliente cuando se otorga un préstamo.
+getCuentas() → Retorna la lista de todas las cuentas.
+eliminarCuenta(long numeroCuenta) → Elimina una cuenta por su número.
+
+Importaciones de Spring explicadas
+@Component (de org.springframework.stereotype.Component)
+
+Marca la clase como un componente de Spring.
+Permite que Spring la gestione como un bean y se pueda inyectar en otras clases.
+
+@Autowired (de org.springframework.beans.factory.annotation.Autowired)
+
+Permite la inyección automática de dependencias. En este caso, ClienteService se inyecta automáticamente en la clase CuentaService para ser utilizado.
+
+CuentaService maneja la lógica de negocio para gestionar cuentas bancarias.
+Usa @Component para ser gestionada por Spring y @Autowired para inyectar el servicio de clientes.
+Permite crear, validar, actualizar y eliminar cuentas.
+
+CuotaService.java
+
+La clase CuotaService tiene dos funciones principales: generar cuotas para un préstamo y calcular el monto de cada cuota.
+
+¿Qué hace esta clase?
+generarCuotas(Prestamo prestamo, PrestamoOutput prestamoOutput)
+
+Calcula el monto de la cuota mensual utilizando el método calcularMontoCuota.
+Determina el número de la cuota, dependiendo de cuántas ya existan en el plan de pagos.
+Crea una nueva Cuota con el número de cuota y el monto calculado, luego la agrega al prestamoOutput.
+
+calcularMontoCuota(Prestamo prestamo)
+
+Calcula el monto de la cuota mensual, sumando el monto del préstamo y el interés total, y dividiéndolo por el plazo en meses.
+
+CuotaService gestiona la creación de cuotas para un préstamo, calculando el monto y el número de cada cuota.
+
+PrestamoService.java
+
+La clase PrestamoService maneja la lógica de solicitar un préstamo y la consulta de préstamos de un cliente.
+
+¿Qué hace esta clase?
+
+pedirPrestamo(PrestamoDto prestamoDto)
+
+Crea un préstamo y un objeto de salida (PrestamoOutput).
+Valida si el préstamo es posible (por ejemplo, verificando si el cliente tiene la cuenta correcta y si no supera el monto permitido).
+Calcula el estado del préstamo ("APROBADO" o "RECHAZADO") con base en el scoring crediticio.
+Si es aprobado, calcula los intereses, genera las cuotas, almacena el préstamo y actualiza la cuenta del cliente.
+Devuelve un PrestamoOutputDto con el resultado.
+
+calculaIntereses(double monto, int valorInteres)
+
+Calcula los intereses del préstamo basado en el monto solicitado y el interés proporcionado.
+
+calcularScoring(Long dni)
+
+Verifica el puntaje crediticio del cliente usando un servicio externo y determina si el préstamo es aprobado o rechazado.
+
+validator(Prestamo prestamo)
+
+Valida que el cliente tenga una cuenta en la moneda correcta, que el monto del préstamo no sea mayor al permitido y que no tenga más de tres préstamos pendientes.
+
+pedirConsultaPrestamos(long dni)
+
+Permite consultar los préstamos de un cliente, con detalles sobre los pagos realizados y el saldo restante.
+
+Importaciones de Spring Framework
+
+@Autowired
+
+Inyecta dependencias automáticamente. En este caso, se inyectan varias clases: ClienteService, CuentaService, PrestamoDao, y PrestamoOutputDao.
+
+@Service
+
+Indica que esta clase es un servicio en la capa de negocio de la aplicación. Spring la considera un componente gestionado por el contenedor, lo que permite la inyección de dependencias y otras características de Spring.
+
+PrestamoService gestiona la solicitud y consulta de préstamos para los clientes, incluyendo validaciones, cálculos de intereses, cuotas y scoring crediticio.
+@Autowired y @Service son anotaciones de Spring utilizadas para inyectar dependencias y marcar la clase como un servicio dentro del contexto de Spring.
+
+ScoreCrediticioService.java
+
+La clase ScoreCrediticioService se encarga de verificar si un cliente tiene un buen puntaje crediticio basándose en su DNI.
+
+¿Qué hace esta clase?
+
+verificarScore(long dni)
+Recibe un número de DNI.
+Si el DNI es impar, devuelve true (tiene buen score).
+Si el DNI es par, devuelve false (tiene mal score).
+Básicamente, es una verificación de scoring muy básica y ficticia.
+
+Importaciones de Spring Framework
+
+@Service
+Marca la clase como un servicio de negocio en la arquitectura de Spring.
+Permite que esta clase sea gestionada automáticamente por Spring y utilizada en otras partes de la aplicación mediante inyección de dependencias (@Autowired).
+
+ScoreCrediticioService verifica si un DNI tiene buen puntaje basándose en si es par o impar.
+@Service indica que es una clase de servicio en Spring, lo que permite inyectarla en otras clases de la aplicación.
+
+Application.java
+
+Esta clase inicia la aplicación Spring Boot.
+
+¿Qué hace esta clase?
+
+Método main(String args[])
+Llama a SpringApplication.run(Application.class, args);
+Esto arranca la aplicación con todas las configuraciones de Spring Boot.
+
+Importaciones de Spring Framework
+@SpringBootApplication
+
+Es una anotación principal que combina tres cosas:
+@Configuration → Define configuraciones de la app.
+@EnableAutoConfiguration → Configura automáticamente los componentes de Spring.
+@ComponentScan → Busca y registra los Beans de Spring en el proyecto.
+
+SpringApplication.run(Application.class, args)
+
+Inicia la aplicación Spring Boot y sus servicios.
+
+Application es el punto de entrada de la aplicación.
+@SpringBootApplication configura y escanea automáticamente la app.
+SpringApplication.run(...) arranca todo el sistema de Spring Boot.
+
+ApplicationConfig.java
+
+Esta clase configura Spring para que detecte automáticamente los componentes del proyecto.
+
+¿Qué hace esta clase?
+
+@Configuration
+
+Indica que esta clase define configuraciones de Spring.
+Permite crear Beans manualmente si es necesario.
+
+@ComponentScan
+
+Le dice a Spring que busque y registre automáticamente todos los componentes (@Service, @Repository, @Controller, etc.).
+
+Importaciones de Spring Framework
+@Configuration
+
+Marca la clase como una clase de configuración para Spring.
+
+@ComponentScan
+
+Escanea y registra automáticamente todos los componentes de Spring en el paquete donde se encuentra esta clase y sus subpaquetes.
+
+ApplicationConfig configura la aplicación en Spring.
+@Configuration define la clase como una fuente de configuración.
+@ComponentScan hace que Spring detecte automáticamente los servicios y componentes del proyecto.
+
+ClienteControllerTest.java
+
+Esta clase es un test unitario para ClienteController usando JUnit y Mockito.
+Prueba los métodos del controlador para crear, buscar, eliminar clientes y verifica que funcionen correctamente.
+
+¿Qué hace esta clase?
+
+Simula dependencias con @Mock (mock de ClienteService y ClienteValidator).
+Inyecta el mock en ClienteController con @InjectMocks.
+Configura los mocks antes de cada test con @BeforeEach.
+Prueba métodos del controlador con @Test, verificando:
+Que las operaciones se realicen correctamente.
+Que las excepciones se lancen cuando corresponde.
+Que los métodos se llamen la cantidad de veces esperada (verify).
+
+Importaciones
+
+JUnit 5 (org.junit.jupiter)
+
+@BeforeEach → Ejecuta código antes de cada test.
+@Test → Define un test unitario.
+@TestInstance(TestInstance.Lifecycle.PER_CLASS) → Mantiene la misma instancia para todos los tests en la clase.
+assertEquals, assertThrows, assertDoesNotThrow → Validan los resultados esperados.
+
+Mockito (org.mockito)
+
+@Mock → Crea un mock de una clase.
+@InjectMocks → Inyecta los mocks en la clase bajo prueba.
+MockitoAnnotations.openMocks(this) → Inicializa los mocks antes de cada test.
+when(...) → Simula el comportamiento de un método.
+doThrow(...), doNothing() → Definen respuestas para los mocks.
+verify(...) → Verifica cuántas veces se llamó un método.
+
+Spring (org.springframework.http)
+
+ResponseEntity → Maneja respuestas HTTP en el controlador.
+
+Prueba ClienteController simulando ClienteService y ClienteValidator.
+Usa Mockito para crear mocks y simular respuestas.
+Verifica que los métodos funcionan y lanzan excepciones cuando deben.
+
+CuentaControllerTest.java
+
+Este código es un test unitario para la clase CuentaController en una aplicación Spring Boot. Usa Mockito y JUnit 5 para simular el comportamiento de los servicios CuentaService y ClienteService, permitiendo probar los métodos del controlador sin depender de una base de datos real.
+
+Importaciones
+
+Spring Boot y REST
+
+@RestController, @RequestMapping → Indican que la clase es un controlador REST.
+@GetMapping, @PostMapping, @DeleteMapping → Definen endpoints HTTP (GET, POST, DELETE).
+
+Servicios y Modelos
+
+CuentaService, ClienteService → Servicios que manejan la lógica de negocio.
+Cuenta, Cliente, TipoCuenta, TipoMoneda → Modelos de datos usados en la app.
+
+Excepciones Personalizadas
+
+CuentaAlreadyExistsException, TipoCuentaNoSoportadaException, TipoCuentaAlreadyExistsException → Excepciones lanzadas si ocurren errores en la creación de cuentas.
+
+Mockito y JUnit 5 (Para Pruebas Unitarias)
+
+@Mock → Simula dependencias (CuentaService, ClienteService).
+@InjectMocks → Inserta los mocks en el CuentaController.
+@BeforeEach → Ejecuta la configuración antes de cada test.
+@Test → Marca un método como prueba unitaria.
+assertEquals(), assertThrows() → Verifican resultados esperados.
+when(), verify(), doThrow() → Usados para simular el comportamiento de los servicios.
+
+¿Qué pruebas hace?
+Crear una cuenta (caso de éxito y fallo).
+Obtener todas las cuentas.
+Obtener cuentas por DNI del cliente.
+Eliminar una cuenta (caso de éxito y fallo).
+Básicamente, simula operaciones bancarias y verifica que el controlador maneje bien las respuestas y errores. 
+
+PrestamoControllerTest.java
+
+Este código es una prueba unitaria para el controlador de préstamos en una aplicación de Spring Boot usando JUnit y Mockito.
+
+Se mockea (@Mock) el servicio de préstamos (PrestamoService) y el validador (PrestamoValidator).
+Se inyecta (@InjectMocks) el PrestamoController, que es el controlador que se prueba.
+Se configuran pruebas (@Test) para los siguientes casos:
+Un préstamo se otorga con éxito.
+Se intenta solicitar un préstamo nulo (debe lanzar una excepción).
+Un préstamo es rechazado y lanza una excepción.
+Se consulta los préstamos de un cliente con éxito.
+Se usan métodos auxiliares (getPrestamoOutputDto, getPrestamo, getPrestamoConsultaDto) para simular datos.
+
+Importaciones
+
+Spring Boot & Validaciones
+
+org.springframework.web.bind.annotation.*: Permite definir controladores REST con @RestController, @RequestMapping, etc.
+jakarta.validation.Valid: Valida objetos antes de procesarlos en un endpoint.
+
+JUnit (Testing)
+
+org.junit.jupiter.api.*: Contiene anotaciones y funciones de JUnit 5 (@Test, assertThrows, assertEquals).
+org.junit.jupiter.api.extension.ExtendWith: Permite usar extensiones como Mockito en JUnit 5.
+org.junit.jupiter.api.TestInstance: Controla el ciclo de vida de instancias en pruebas.
+
+Mockito (Mocking)
+
+org.mockito.*: Funciones de Mockito para simular dependencias y verificar llamadas (when(), verify(), doThrow()).
+org.mockito.junit.jupiter.MockitoExtension: Extensión para usar Mockito con JUnit 5.
+
+Modelos y Servicios (Lógica de Negocio)
+
+ar.edu.utn.frbb.tup.model.*: Clases de dominio como Prestamo, Cuota, PrestamoConsultaCliente.
+ar.edu.utn.frbb.tup.service.*: Servicios que contienen la lógica de negocio (PrestamoService).
+ar.edu.utn.frbb.tup.controller.validator.*: Validadores de reglas (PrestamoValidator).
+ar.edu.utn.frbb.tup.model.exception.*: Excepción personalizada PrestamoNoOtorgadoException.
+
+El código prueba el comportamiento del controlador de préstamos simulando el servicio de negocio.
+
+ClienteServiceTest.java
+
+Este código es una clase de prueba unitaria (ClienteServiceTest) para verificar el correcto funcionamiento de la clase ClienteService, que gestiona clientes y cuentas bancarias. Se usa Mockito para simular (mock) el acceso a la base de datos (ClienteDao).
+
+¿Qué hace cada test?
+
+testClienteSuccess → Verifica que un cliente se cree correctamente y se guarde en la base de datos.
+testClienteAlreadyExistsException → Lanza excepción si se intenta crear un cliente con un DNI ya existente.
+testAgregarCuentaAClienteSuccess → Agrega una cuenta a un cliente con éxito.
+testAgregarCuentaAClienteDuplicada → Lanza excepción si el cliente intenta crear dos cuentas del mismo tipo y moneda.
+testAgregarDosCuentasCajaAhorroYCuentaCorrienteEnPesos → Permite crear dos cuentas de diferente tipo con la misma moneda.
+testAgregarDosCuentasCajaAhorroEnPesosYDolares → Permite crear dos cuentas del mismo tipo pero con diferente moneda.
+testBuscarPorDniExito → Busca un cliente existente por su DNI y lo encuentra.
+testBuscarPorDniFallo → Lanza excepción si el cliente no existe.
+
+Importaciones:
+
+ar.edu.utn.frbb.tup.* → Clases del proyecto relacionadas con clientes, cuentas y excepciones.
+org.junit.jupiter.* → Framework JUnit 5, usado para pruebas unitarias.
+org.mockito.* → Framework Mockito, utilizado para simular dependencias y verificar interacciones.
+java.time.LocalDate → Manejo de fechas en Java.
+static org.junit.jupiter.api.Assertions.* → Métodos para validar pruebas (asserts).
+static org.mockito.Mockito.* → Métodos de Mockito para simulaciones y validaciones.
+
+Este código prueba que la creación y gestión de clientes y cuentas bancarias funciona correctamente, asegurando que no se creen duplicados y que las reglas se cumplan.
+
+CuentaServiceTest.java
+
+Este código es un conjunto de tests unitarios para la clase CuentaService en un sistema bancario. Usa JUnit 5 y Mockito para simular el comportamiento de dependencias sin necesidad de una base de datos real.
+
+Prueba la lógica de negocio de CuentaService, verificando la creación y actualización de cuentas.
+Mockea (@Mock) dependencias como ClienteDao, CuentaDao y ClienteService para simular respuestas sin interactuar con la base de datos.
+Ejecuta tests (@Test) para distintos escenarios, como:
+Actualizar saldo de un cliente.
+Detectar si una cuenta ya existe.
+Manejar tipos de cuenta no soportados.
+Agregar una nueva cuenta correctamente.
+
+Importaciones
+
+JUnit y Mockito (@Test, @ExtendWith, @InjectMocks, @Mock) → Se usan para definir los tests y simular objetos.
+Clases del sistema (ClienteDao, CuentaDao, CuentaService, CuentaDto) → Representan la lógica y los datos de la aplicación.
+Excepciones personalizadas (ClienteAlreadyExistsException, etc.) → Manejan errores específicos de la aplicación.
+Colecciones y fechas (ArrayList, LocalDateTime) → Usadas para manipular datos en los tests.
+
+Este código asegura que CuentaService funcione correctamente mediante simulaciones y pruebas automatizadas.
+
+CuotaServiceTest.java
+
+Este código es un test unitario para la clase CuotaService, que genera y calcula cuotas de un préstamo. Usa JUnit 5 para ejecutar las pruebas y verificar que la lógica de generación de cuotas funcione correctamente.
+
+¿Qué hace cada prueba?
+
+testGenerarCuotas
+
+Llama a CuotaService.generarCuotas(prestamo, prestamoOutput).
+Verifica que se generen cuotas y que no esté vacío el plan de pagos.
+Asegura que las cuotas se generen secuencialmente (1, 2, etc.).
+
+calcularMontoCuotaTest
+
+Calcula el monto esperado de la cuota con la fórmula (monto + interés) / meses.
+Llama a CuotaService.calcularMontoCuota(prestamo) y verifica que el resultado sea correcto.
+
+Importaciones
+
+JUnit (@Test, @BeforeEach, @BeforeAll, @TestInstance) → Define y configura los tests.
+Mockito (@ExtendWith(MockitoExtension.class)) → Habilita Mockito para simular objetos (aunque en este código no se mockean).
+Clases del sistema (Prestamo, PrestamoOutput, Cuota) → Representan los datos de los préstamos y sus cuotas.
+List (java.util.List) → Maneja la lista de cuotas generadas.
+
+Este código prueba que CuotaService funcione correctamente al generar y calcular cuotas de préstamos.
+
+PrestamoServiceTest.java
+
+El archivo PrestamoServiceTest.java contiene pruebas unitarias para la clase PrestamoService utilizando JUnit 5 y Mockito. Este archivo se enfoca en probar diferentes escenarios relacionados con la solicitud y consulta de préstamos.
+
+Explicación
+
+Configura el entorno de pruebas con @ExtendWith(MockitoExtension.class) y @TestInstance(TestInstance.Lifecycle.PER_CLASS).
+Utiliza @Mock para simular dependencias, como PrestamoDao, PrestamoOutputDao, ClienteService, CuentaService y ScoreCrediticioService.
+Inyecta PrestamoService con @InjectMocks para probarlo sin depender de implementaciones reales.
+Ejecuta pruebas unitarias con @Test, evaluando diferentes casos:
+Préstamo aprobado (testPedirPrestamoExito).
+Préstamo rechazado (testPedirPrestamoRechazado).
+Cliente sin cuenta en la moneda requerida (testPedirPrestamoCuentaNoPermitida).
+Monto de préstamo excede el límite permitido (testPedirPrestamoMontoNoPermitido).
+Cliente es deudor y no puede solicitar más préstamos (testPedirPrestamoDeudor).
+Cálculo de intereses (testCalculaIntereses).
+Consulta de préstamos fallida (testPedirConsultaPrestamosFallo).
+Consulta de préstamos exitosa (testPedirConsultaPrestamosExito).
+
+Importaciones
+
+Importaciones de Modelos y DTOs
+
+ar.edu.utn.frbb.tup.controller.PrestamoConsultaDto;
+ar.edu.utn.frbb.tup.model.*;
+ar.edu.utn.frbb.tup.controller.PrestamoDto;
+ar.edu.utn.frbb.tup.controller.PrestamoOutputDto;
+✔ Se utilizan para representar objetos de negocio y transferir datos en las pruebas.
+
+Importaciones de Excepciones
+
+ar.edu.utn.frbb.tup.model.exception.PrestamoNoOtorgadoException;
+✔ Permite probar escenarios donde un préstamo no puede ser otorgado.
+
+Importaciones de Persistencia
+
+ar.edu.utn.frbb.tup.persistence.PrestamoDao;
+ar.edu.utn.frbb.tup.persistence.PrestamoOutputDao;
+✔ Simulan interacciones con la base de datos.
+
+Importaciones de JUnit 5
+
+org.junit.jupiter.api.*;
+org.junit.jupiter.api.extension.ExtendWith;
+✔ Proporcionan anotaciones para ejecutar pruebas (@Test, @BeforeAll).
+
+Importaciones de Mockito
+
+org.mockito.*;
+org.mockito.junit.jupiter.MockitoExtension;
+✔ Permiten simular dependencias y verificar interacciones (when, verify, mock).
+
+Importaciones de Utilidades
+
+java.util.*;
+✔ Se usa para manejar listas y almacenar préstamos, cuentas, etc.
+
+Este código prueba la lógica de negocio de PrestamoService asegurando que funcione correctamente en distintos escenarios de préstamos y consultas. Usa Mockito para simular dependencias y JUnit 5 para ejecutar las pruebas de manera estructurada.
+
+.gitignore
+
+Es un archivo .gitignore diseñado para un proyecto en Java, con Maven y Spring Boot. Su propósito es evitar que ciertos archivos innecesarios sean rastreados por Git.
+
+Explicación rápida de cada sección:
+
+Archivos compilados (.class)
+
+*.class → Evita subir archivos de bytecode generados por el compilador Java.
+
+Archivos de registro (.log)
+
+*.log → Excluye logs generados por la aplicación.
+
+Archivos específicos de BlueJ y J2ME
+
+*.ctxt → Archivos internos de BlueJ.
+.mtj.tmp/ → Directorio temporal de Mobile Tools for Java.
+
+Archivos de empaquetado (.jar, .war, .zip, etc.)
+
+*.jar, *.war, *.ear, *.zip, etc. → Evita subir archivos generados después de compilar o empaquetar el proyecto.
+
+Crash logs de la JVM (hs_err_pid*)
+
+hs_err_pid*, replay_pid* → Archivos de error que Java genera en caso de un fallo crítico.
+
+Archivos específicos de IntelliJ IDEA
+
+.idea → Configuración del IDE IntelliJ IDEA.
+*.iml → Archivos de configuración de módulos de IntelliJ.
+Carpeta target/ (Maven o Spring Boot)
+
+target/ → Carpeta donde Maven genera los archivos compilados y empaquetados, que no deben subirse.
+
+Este .gitignore evita subir archivos compilados, logs, archivos generados por el IDE, paquetes y archivos temporales innecesarios. Así el repositorio se mantiene limpio y sin archivos redundantes.
+
+pom.xml
+
+Este es un archivo pom.xml de Maven, que define la configuración del proyecto Spring Boot y sus dependencias.
+
+Explicación rápida de cada sección:
+
+1. Información del Proyecto
+Define el grupo (groupId), artefacto (artifactId), versión, nombre y URL del proyecto.
+Usa Spring Boot Parent (spring-boot-starter-parent) versión 3.3.0, que hereda configuraciones estándar.
+2. Propiedades
+Define la codificación (UTF-8) y la versión de Java (16).
+3. Dependencias
+spring-boot-starter-web → Agrega soporte para aplicaciones web con Spring MVC.
+spring-boot-starter-test → Incluye bibliotecas para pruebas en JUnit y Mockito.
+spring-boot-starter-logging → Proporciona Logback para manejar logs.
+hibernate-validator → Implementa validaciones en los DTOs con Jakarta Validation (Bean Validation API).
+4. Plugins de Construcción
+
+Maven usa estos plugins para compilar, testear y generar archivos .jar:
+
+maven-compiler-plugin → Compila el código en Java 16.
+spring-boot-maven-plugin → Permite ejecutar y empaquetar la app como un Spring Boot Jar.
+jacoco-maven-plugin → Genera reportes de cobertura de código en los tests.
+Otros plugins:
+Limpieza (maven-clean-plugin)
+Empaquetado (maven-jar-plugin)
+Ejecución de pruebas (maven-surefire-plugin)<
+
+Este archivo gestiona dependencias y plugins para construir, probar y desplegar una aplicación Spring Boot con Maven.
+
+Explicación del README.md:
+
+Este proyecto tiene un sistema de gestión de préstamos en Java con Spring Boot, donde se agregaron nuevas funcionalidades al código base del curso.
+
+Controlador (Controller)
+
+PrestamoController: Permite solicitar y consultar préstamos.
+PrestamoDto / PrestamoOutputDto: Manejan los datos de entrada y salida del préstamo.
+PrestamoValidator: Verifica que los montos sean positivos y en PESOS.
+
+Modelo (Model)
+
+Prestamo / PrestamoOutput: Representan la solicitud y el estado del préstamo.
+Cuota: Maneja las cuotas del préstamo.
+PrestamoConsultaCliente: Permite consultar préstamos.
+
+Servicios (Service)
+
+PrestamoService: Gestiona la lógica de préstamos.
+CuotaService: Genera cuotas.
+ScoreCrediticioService: Simula evaluación crediticia (aprueba si el DNI es impar).
+CuentaService: Se actualiza para reflejar los préstamos en las cuentas.
+
+Persistencia (Persistence)
+
+PrestamoDao / PrestamoOutputDao: Guardan datos de los préstamos.
+
+Configuración (pom.xml)
+
+Se agregaron JaCoCo para cobertura de tests y Hibernate Validator para validaciones.
+
+Es un sistema de préstamos que valida, otorga y gestiona créditos con Spring Boot.
+
+Explicación de lo que hace el target de este proyecto y lo que contiene:
+
+El directorio target/ en un proyecto Maven,es donde se almacenan los archivos generados después de compilar y construir la aplicación.
+
+¿Qué hace target/?
+
+Cuando ejecutas un comando como mvn package o mvn install, Maven genera en target/ los archivos resultantes del build, incluyendo:
+
+Clases compiladas (.class) → Código fuente de src/ convertido en bytecode.
+JAR/WAR del proyecto → Archivo empaquetado para ejecución.
+Archivos de prueba → Resultados de tests (mvn test).
+Registros y reportes → Logs, informes de cobertura (JaCoCo), etc.
+Contenido típico de target/
+
+Dentro de target/, encontramos:
+
+classes/ → Clases compiladas del código fuente principal (src/main/java).
+test-classes/ → Clases compiladas de los tests (src/test/java).
+generated-sources/ → Código generado automáticamente por plugins.
+surefire-reports/ → Reportes de pruebas unitarias (mvn test).
+jacoco.exec → Archivo de cobertura de código (si se usa JaCoCo).
+tup2024-1.0-SNAPSHOT.jar → Archivo JAR generado (nombre depende de pom.xml).
+
+El directorio target/ es donde Maven almacena los archivos compilados y empaquetados del proyecto, asegurando que el código esté listo para ejecutarse, probarse y desplegarse.
+
+Explicación del Proyecto
+
+Es una API REST en Java con Spring Boot que gestiona clientes, cuentas bancarias y préstamos. 
+
+¿Qué hace el proyecto?
+
+Gestión de clientes → Crear, buscar y eliminar clientes.
+Manejo de cuentas bancarias → Crear cuentas (caja de ahorro, cuenta corriente), consultar y eliminar.
+Préstamos → Solicitar préstamos, consultar historial y calcular cuotas.
+Persistencia en memoria → Usa una base de datos en memoria simulada con HashMap (sin conexión a una BD real).
+
+Tecnologías usadas:
+
+Java 16 → Lenguaje principal.
+Spring Boot → Framework para construir la API REST.
+Maven → Para gestionar dependencias y compilación.
+JUnit y Mockito → Pruebas unitarias y mocks.
+JaCoCo → Cobertura de código en tests.
+
+Estructura clave:
+
+controller/ → Define las API REST (ClienteController, CuentaController, PrestamoController).
+service/ → Lógica de negocio (ClienteService, CuentaService, PrestamoService).
+persistence/ → Simulación de una base de datos (ClienteDao, CuentaDao).
+model/ → Clases de dominio (Cliente, Cuenta, Prestamo).
+test/ → Pruebas unitarias con JUnit y Mockito.
+
+¿Cómo se ejecuta?
+
+mvn clean install
+mvn spring-boot:run
+Esto compila y ejecuta la API en http://localhost:8080.
+
+Es un sistema bancario simple con Spring Boot que permite gestionar clientes, cuentas y préstamos, con lógica de negocio en los servicios y almacenamiento en memoria. 
